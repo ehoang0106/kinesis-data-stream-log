@@ -14,17 +14,17 @@ def lambda_function(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
     
-    # get the log file from s3
+    #get the log file from s3
     response = s3.get_object(Bucket=bucket, Key=key)
     log_content = response['Body'].read()
     
-    # decompress the log file
+    #decompress the log file
     
     if key.endswith('.gz'):
         log_content = gzip.GzipFile(fileobj=io.BytesIO(log_content)).read()
         
     
-    # parse the log file
+    #parse the log file
     
     lines = log_content.decode('utf-8').strip().split('\n')
     for line in lines:
@@ -49,5 +49,6 @@ def lambda_function(event, context):
             Data=json.dumps(log_data),
             PartitionKey=fields[4] # use the request_ip as the partition key
         )
+        
         
     return { 'statusCode': 200, 'body': json.dumps('Log processed successfully') }
